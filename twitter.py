@@ -1,4 +1,4 @@
-
+from config import config
 import oauth2
 import urllib
 import sched, time
@@ -11,10 +11,10 @@ from requests_oauthlib import OAuth1
 
 s = sched.scheduler(time.time, time.sleep)
 
-consumer_secret = ""
-consumer_key = ""
-access_token = ""
-access_token_secret = ""
+consumer_secret = config["consumer_secret"]
+consumer_key = config["consumer_key"]
+access_token = config["access_token"]
+access_token_secret = config["access_token_secret"]
 
 webhook_id = "1234"
 
@@ -339,47 +339,14 @@ class Messenger(object):
                 convo['position'] = 2
 
 
-script = [
-    {
-        "text" : "Would you like a movie recommendation",
-        "answers" : [
-            {
-                "text" : "yes",
-                "result" : 1,
-            },
-            {
-                "text" : "no",
-                "result" : 0
-            }
-        ]
-    },
-    {
-        "text" : "What genre do you like?",
-        "answers" : [
-            {
-                "text" : "Action",
-                "result" : 2
-            },
-            {
-                "text" : "Comedy",
-                "result" : 3
-            }
-        ]
-    },
-    {
-        "text" : "War for the Planet of the Apes is an action! http://www.imdb.com/title/tt3450958/. Thanks!",
-        "attachment" : {
-            "type" : "media",
-            "id" : apes_id
-        },
-        "result" : 0
-    },
-    {
-        "text" : "Boss Baby is a fun comedy! http://www.imdb.com/title/tt3874544/. Thanks!",
-        "attachment" : {
-            "type" : "media",
-            "id" : boosbaby_id
-        },
-        "result" : 0
-    }
-]
+#msg = Messenger(consumer_key, consumer_secret, access_token, access_token_secret)
+#msg.run()
+#s.enter(60, 1, msg.run, ())
+#s.run()
+
+#twitter = TwitterConnection(consumer_key, consumer_secret, access_token, access_token_secret)
+#twitter.delete_webhook()
+#twitter.set_up_webhook()
+#twitter.subscribe_to_webhook()
+#twitter.get_webhooks()
+#twitter.delete_webhook()

@@ -1,30 +1,17 @@
-activate_this = "/env/bin/activate_this.py"
-execfile(activate_this, dict(__file__=activate_this))
-
-import sys
-if hasattr(sys, 'real_prefix'):
-        print >> sys.stderr, 'sys.real_prefix = %s' % repr(sys.real_prefix)
-        print >> sys.stderr, 'sys.prefix = %s' % repr(sys.prefix)
-else:
-        print >> sys.stderr, 'no virtual env'
-
-
-
+from config import config
 from flask import Flask, request, Response, json, make_response, jsonify
 import hmac
 import hashlib
 import base64
 from twitter import TwitterConnection, Messenger
 import sys
-sys.stdout = open('/output.logs', 'w')
 app = Flask(__name__)
 
-print "SYS PREFIX", sys.prefix
-print "SYS PATH", sys.path
-consumer_secret = ""
-consumer_key = ""
-access_token = ""
-access_token_secret = ""
+
+consumer_secret = config["consumer_secret"]
+consumer_key = config["consumer_key"]
+access_token = config["access_token"]
+access_token_secret = config["access_token_secret"]
 
 msg = Messenger(consumer_key, consumer_secret, access_token, access_token_secret)
 
@@ -84,5 +71,5 @@ def handle_request():
         return "HELLO WORLD"
 
 
-if __name__ == "__main__":
-    app.run(debug=True)
+# if __name__ == "__main__":
+#     app.run(debug=True)
