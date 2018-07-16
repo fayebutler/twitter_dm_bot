@@ -53,7 +53,7 @@ class TwitterConnection(object):
         """
         Set up a web hook for account activity
         """
-        response = requests.post(url="https://api.twitter.com/1.1/account_activity/webhooks.json",  headers={"content-type" : "application/x-www-form-urlencoded"}, data={"url" : "https://faye.thinkjam.com/webhook"}, auth=self.oauth)
+        response = requests.post(url="https://api.twitter.com/1.1/account_activity/webhooks.json",  headers={"content-type" : "application/x-www-form-urlencoded"}, data={"url" : config["webhook_url"]}, auth=self.oauth)
         print response.json()
 
     def subscribe_to_webhook(self):
@@ -344,7 +344,7 @@ class Messenger(object):
 #s.enter(60, 1, msg.run, ())
 #s.run()
 
-#twitter = TwitterConnection(consumer_key, consumer_secret, access_token, access_token_secret)
+twitter = TwitterConnection(consumer_key, consumer_secret, access_token, access_token_secret)
 #twitter.delete_webhook()
 #twitter.set_up_webhook()
 #twitter.subscribe_to_webhook()
