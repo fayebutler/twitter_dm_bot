@@ -134,6 +134,9 @@ class TwitterConnection(object):
         """
         Chunk upload media to twitter and return the media ID once processing is successful
         """
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        path = os.path.abspath(dir_path + file_name)
+        file_name = path
         total_bytes = os.path.getsize(file_name)
 
         request_data = {
@@ -349,12 +352,12 @@ class Messenger(object):
             #Heres a movie
             if message['message_create']['message_data']['text'] == "Comedy":
                 print("chosen comedy", file=sys.stderr)
-                media_id = self.twitter.upload_media('assets/BossBaby_vid.mp4', 'video/mp4', 'dm_video')
+                media_id = self.twitter.upload_media('/assets/bossbaby_vid.mp4', 'video/mp4', 'dm_video')
                 reply = {"text" : "Boss Baby is a fun comedy! http://www.imdb.com/title/tt3874544/. Thanks!", "attachment" : {"type" : "media", "media" : { "id" : media_id}}}
                 self.twitter.response(reply, message['message_create']['sender_id'])
                 convo['position'] = 0
             elif message['message_create']['message_data']['text'] == "Action":
-                media_id = self.twitter.upload_media('assets/Apes_vid.mp4', 'video/mp4', 'dm_video')
+                media_id = self.twitter.upload_media('/assets/apes_vid.mp4', 'video/mp4', 'dm_video')
                 reply = {"text" : "War for the Planet of the Apes is an action! http://www.imdb.com/title/tt3450958/. Thanks!", "attachment" : {"type" : "media", "media" : { "id" : media_id}}}
                 self.twitter.response(reply, message['message_create']['sender_id'])
                 convo['position'] = 0
