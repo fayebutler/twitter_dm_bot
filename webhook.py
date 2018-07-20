@@ -50,27 +50,39 @@ def validation():
 
 @app.route('/webhook', methods=["POST"])
 def handle_request():
-    print('posting message', file=sys.stderr)
     try:
         tw_signature = request.headers['X-Twitter-Webhooks-Signature']
         tw_signature = tw_signature.replace('sha256=', '')
+        #tw_signature = base64.b64encode(tw_signature)
+
         validation = hmac.new(
             key=consumer_secret,
             msg=request.data,
             digestmod = hashlib.sha256
         )
-        signature = base64.b64encode(validation.digest())
+        signature = validation.digest()
+        signature = base64.b64encode(signature)
+
         if (type(signature) != str):
             signature = str(signature)
+
         if (type(tw_signature) != str):
             tw_signature = str(tw_signature)
 
-        #comapre hashes to check validation
-        valid = hmac.compare_digest(signature, tw_signature)
-        #print "valid", valid
+        #print("signature: " + signature, file=sys.stderr)
+        #print("twitter: " + tw_signature, file=sys.stderr)
+
+        #pythonanywhere only has python2.7.6 and compare_digest is only available from python 2.7.10
+        #instead just do a normal string comparison -- not as safe as doesn't stop timing attacks
+        valid = False
+        try:
+            valid = hmac.compare_digest(signature, tw_signature)
+        except AttributeError as e:
+            valid = (signature == tw_signature)
+        #print(valid, file=sys.stderr)
 
         if valid == True:
-            print('validated message from twitter', file=sys.stderr)
+            #print('validated message from twitter', file=sys.stderr)
             message = request.json["direct_message_events"]
             msg.run(message)
 

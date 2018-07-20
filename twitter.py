@@ -17,6 +17,7 @@ access_token = config["access_token"]
 access_token_secret = config["access_token_secret"]
 
 webhook_id = config['webhook_id']
+env_name = config['env_name']
 
 #webhook_url = urllib.quote_plus(config['webhook_url'])
 webhook_url = config['webhook_url']
@@ -48,7 +49,7 @@ class TwitterConnection(object):
         """
         Delete a webhook
         """
-        response = requests.delete(url="https://api.twitter.com/1.1/account_activity/all/dev/webhooks/" + webhook_id + ".json", auth=self.oauth)
+        response = requests.delete(url="https://api.twitter.com/1.1/account_activity/all/" + env_name + "/webhooks/" + webhook_id + ".json", auth=self.oauth)
         if response.status_code == 204:
             print "deleted"
         else:
@@ -58,14 +59,14 @@ class TwitterConnection(object):
         """
         Set up a web hook for account activity
         """
-        response = requests.post(url="https://api.twitter.com/1.1/account_activity/all/dev/webhooks.json",  headers={"content-type" : "application/x-www-form-urlencoded"}, data={"url" : webhook_url}, auth=self.oauth)
+        response = requests.post(url="https://api.twitter.com/1.1/account_activity/all/" + env_name + "/webhooks.json",  headers={"content-type" : "application/x-www-form-urlencoded"}, data={"url" : webhook_url}, auth=self.oauth)
         print response.json()
 
     def challenge_webhook(self):
         """
         Send CRC check to webhook
         """
-        response = requests.put(url="https://api.twitter.com/1.1/account_activity/all/dev/webhooks/" + webhook_id + ".json", auth=self.oauth)
+        response = requests.put(url="https://api.twitter.com/1.1/account_activity/all/" + env_name + "/webhooks/" + webhook_id + ".json", auth=self.oauth)
         if response.status_code == 204:
             print "webhook valid"
         else:
@@ -75,7 +76,7 @@ class TwitterConnection(object):
         """
         Subscribe user to webhook using webhook id
         """
-        response = requests.post(url="https://api.twitter.com/1.1/account_activity/all/dev/subscriptions.json", auth=self.oauth)
+        response = requests.post(url="https://api.twitter.com/1.1/account_activity/all/" + env_name + "/subscriptions.json", auth=self.oauth)
         print response
         if response.status_code == 204:
             print "subscription success"
@@ -94,14 +95,14 @@ class TwitterConnection(object):
         """
         List all the subscriptions to the webhook
         """
-        response = requests.get(url="https://api.twitter.com/1.1/account_activity/all/dev/subscriptions/list", auth=self.oauth)
+        response = requests.get(url="https://api.twitter.com/1.1/account_activity/all/" + env_name + "/subscriptions/list", auth=self.oauth)
         print response.json()
 
     def check_subscription(self):
         """
         Check subscribed to webhook
         """
-        response = requests.get(url="https://api.twitter.com/1.1/account_activity/all/dev/subscriptions", auth=self.oauth)
+        response = requests.get(url="https://api.twitter.com/1.1/account_activity/all/" + env_name + "/subscriptions", auth=self.oauth)
         if response.status_code == 204:
             print "subscribed"
         else:
@@ -111,7 +112,7 @@ class TwitterConnection(object):
         """
         Delete subscription
         """
-        response = requests.delete(url="https://api.twitter.com/1.1/account_activity/all/:env_name/subscriptions", auth=self.oauth)
+        response = requests.delete(url="https://api.twitter.com/1.1/account_activity/all/" + env_name + "/subscriptions", auth=self.oauth)
         if response.status_code == 204:
             print "deleted"
         else:
