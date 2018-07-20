@@ -50,6 +50,7 @@ def validation():
 
 @app.route('/webhook', methods=["POST"])
 def handle_request():
+    print('posting message', file=sys.stderr)
     try:
         tw_signature = request.headers['X-Twitter-Webhooks-Signature']
         tw_signature = tw_signature.replace('sha256=', '')
@@ -69,6 +70,7 @@ def handle_request():
         #print "valid", valid
 
         if valid == True:
+            print('validated message from twitter', file=sys.stderr)
             message = request.json["direct_message_events"]
             msg.run(message)
 
