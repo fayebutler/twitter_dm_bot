@@ -41,15 +41,14 @@ class TwitterConnection(object):
         """
         Get webhook config
         """
-        response = requests.get(url="https://api.twitter.com/1.1/account_activity/webhooks.json", auth=self.oauth)
+        response = requests.get(url="https://api.twitter.com/1.1/account_activity/all/webhooks.json", auth=self.oauth)
         print response.json()
 
     def delete_webhook(self):
         """
         Delete a webhook
         """
-        print "https://api.twitter.com/1.1/account_activity/webhooks/" + webhook_id + ".json"
-        response = requests.delete(url="https://api.twitter.com/1.1/account_activity/webhooks/" + webhook_id + ".json", auth=self.oauth)
+        response = requests.delete(url="https://api.twitter.com/1.1/account_activity/all/dev/webhooks/" + webhook_id + ".json", auth=self.oauth)
         print response.json()
 
     def set_up_webhook(self):
@@ -57,22 +56,24 @@ class TwitterConnection(object):
         Set up a web hook for account activity
         """
         response = requests.post(url="https://api.twitter.com/1.1/account_activity/all/dev/webhooks.json",  headers={"content-type" : "application/x-www-form-urlencoded"}, data={"url" : webhook_url}, auth=self.oauth)
-
         print response.json()
 
     def challenge_webhook(self):
         """
         Send CRC check to webhook
         """
-        # response = requests.post(url="https://api.twitter.com/1.1/account_activity/webhooks.json",  headers={"content-type" : "application/x-www-form-urlencoded"}, data={"url" : config["webhook_url"]}, auth=self.oauth)
-        # print response.json()
+        response = requests.put(url="https://api.twitter.com/1.1/account_activity/all/dev/webhooks/" + webhook_id + ".json", auth=self.oauth)
+        if response.status_code == 204:
+            print "webhook valid"
+        else:
+            print response.json()
 
     def subscribe_to_webhook(self):
         """
         Subscribe user to webhook using webhook id
         """
-        response = requests.post(url="https://api.twitter.com/1.1/account_activity/webhooks/" + webhook_id +"/subscriptions.json", auth=self.oauth)
-        print response.json()
+        # response = requests.post(url="https://api.twitter.com/1.1/account_activity/webhooks/" + webhook_id +"/subscriptions.json", auth=self.oauth)
+        # print response.json()
 
     def get_messages(self):
         """
@@ -355,9 +356,10 @@ class Messenger(object):
 #s.enter(60, 1, msg.run, ())
 #s.run()
 
-twitter = TwitterConnection(consumer_key, consumer_secret, access_token, access_token_secret)
+#twitter = TwitterConnection(consumer_key, consumer_secret, access_token, access_token_secret)
 #twitter.delete_webhook()
-twitter.set_up_webhook()
+#twitter.set_up_webhook()
 #twitter.subscribe_to_webhook()
 #twitter.get_webhooks()
+#twitter.challenge_webhook()
 #twitter.delete_webhook()
