@@ -49,7 +49,10 @@ class TwitterConnection(object):
         Delete a webhook
         """
         response = requests.delete(url="https://api.twitter.com/1.1/account_activity/all/dev/webhooks/" + webhook_id + ".json", auth=self.oauth)
-        print response.json()
+        if response.status_code == 204:
+            print "deleted"
+        else:
+            print response.json()
 
     def set_up_webhook(self):
         """
@@ -72,8 +75,47 @@ class TwitterConnection(object):
         """
         Subscribe user to webhook using webhook id
         """
-        # response = requests.post(url="https://api.twitter.com/1.1/account_activity/webhooks/" + webhook_id +"/subscriptions.json", auth=self.oauth)
-        # print response.json()
+        response = requests.post(url="https://api.twitter.com/1.1/account_activity/all/dev/subscriptions.json", auth=self.oauth)
+        print response
+        if response.status_code == 204:
+            print "subscription success"
+        else:
+            print response.status_code
+            print response.json()
+
+    def count_subscriptions(self):
+        """
+        Count all the subscriptions to the webhook
+        """
+        response = requests.get(url="https://api.twitter.com/1.1/account_activity/subscriptions/count", auth=self.oauth)
+        print response.json()
+
+    def list_subscriptions(self):
+        """
+        List all the subscriptions to the webhook
+        """
+        response = requests.get(url="https://api.twitter.com/1.1/account_activity/all/dev/subscriptions/list", auth=self.oauth)
+        print response.json()
+
+    def check_subscription(self):
+        """
+        Check subscribed to webhook
+        """
+        response = requests.get(url="https://api.twitter.com/1.1/account_activity/all/dev/subscriptions", auth=self.oauth)
+        if response.status_code == 204:
+            print "subscribed"
+        else:
+            print response.json()
+
+    def delete_subscription(self):
+        """
+        Delete subscription
+        """
+        response = requests.delete(url="https://api.twitter.com/1.1/account_activity/all/:env_name/subscriptions", auth=self.oauth)
+        if response.status_code == 204:
+            print "deleted"
+        else:
+            print response.json()
 
     def get_messages(self):
         """
@@ -360,6 +402,7 @@ class Messenger(object):
 #twitter.delete_webhook()
 #twitter.set_up_webhook()
 #twitter.subscribe_to_webhook()
+#twitter.list_subscriptions()
 #twitter.get_webhooks()
 #twitter.challenge_webhook()
 #twitter.delete_webhook()
