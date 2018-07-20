@@ -1,3 +1,4 @@
+from __future__ import print_function
 from config import config
 import oauth2
 import urllib
@@ -43,7 +44,7 @@ class TwitterConnection(object):
         Get webhook config
         """
         response = requests.get(url="https://api.twitter.com/1.1/account_activity/all/webhooks.json", auth=self.oauth)
-        print response.json()
+        print(response.json())
 
     def delete_webhook(self):
         """
@@ -51,16 +52,16 @@ class TwitterConnection(object):
         """
         response = requests.delete(url="https://api.twitter.com/1.1/account_activity/all/" + env_name + "/webhooks/" + webhook_id + ".json", auth=self.oauth)
         if response.status_code == 204:
-            print "deleted"
+            print("deleted")
         else:
-            print response.json()
+            print(response.json())
 
     def set_up_webhook(self):
         """
         Set up a web hook for account activity
         """
         response = requests.post(url="https://api.twitter.com/1.1/account_activity/all/" + env_name + "/webhooks.json",  headers={"content-type" : "application/x-www-form-urlencoded"}, data={"url" : webhook_url}, auth=self.oauth)
-        print response.json()
+        print(response.json())
 
     def challenge_webhook(self):
         """
@@ -68,35 +69,34 @@ class TwitterConnection(object):
         """
         response = requests.put(url="https://api.twitter.com/1.1/account_activity/all/" + env_name + "/webhooks/" + webhook_id + ".json", auth=self.oauth)
         if response.status_code == 204:
-            print "webhook valid"
+            print("webhook valid")
         else:
-            print response.json()
+            print(response.json())
 
     def subscribe_to_webhook(self):
         """
         Subscribe user to webhook using webhook id
         """
         response = requests.post(url="https://api.twitter.com/1.1/account_activity/all/" + env_name + "/subscriptions.json", auth=self.oauth)
-        print response
         if response.status_code == 204:
-            print "subscription success"
+            print("subscription success")
         else:
-            print response.status_code
-            print response.json()
+            print(response.status_code)
+            print(response.json())
 
     def count_subscriptions(self):
         """
         Count all the subscriptions to the webhook
         """
         response = requests.get(url="https://api.twitter.com/1.1/account_activity/subscriptions/count", auth=self.oauth)
-        print response.json()
+        print(response.json())
 
     def list_subscriptions(self):
         """
         List all the subscriptions to the webhook
         """
         response = requests.get(url="https://api.twitter.com/1.1/account_activity/all/" + env_name + "/subscriptions/list", auth=self.oauth)
-        print response.json()
+        print(response.json())
 
     def check_subscription(self):
         """
@@ -104,9 +104,9 @@ class TwitterConnection(object):
         """
         response = requests.get(url="https://api.twitter.com/1.1/account_activity/all/" + env_name + "/subscriptions", auth=self.oauth)
         if response.status_code == 204:
-            print "subscribed"
+            print("subscribed")
         else:
-            print response.json()
+            print(response.json())
 
     def delete_subscription(self):
         """
@@ -114,9 +114,9 @@ class TwitterConnection(object):
         """
         response = requests.delete(url="https://api.twitter.com/1.1/account_activity/all/" + env_name + "/subscriptions", auth=self.oauth)
         if response.status_code == 204:
-            print "deleted"
+            print("deleted")
         else:
-            print response.json()
+            print(response.json())
 
     def get_messages(self):
         """
@@ -126,10 +126,8 @@ class TwitterConnection(object):
         direct_messages = requests.get(url='https://api.twitter.com/1.1/direct_messages/events/list.json', auth=self.oauth)
         try:
             direct_messages = direct_messages.json()['events']
-            print "TOP MESSAGE", direct_messages[0]
             return direct_messages
         except KeyError:
-            print direct_messages.json()
             sys.exit(1)
 
     def upload_media(self, file_name, media_type, media_category):
@@ -137,8 +135,6 @@ class TwitterConnection(object):
         Chunk upload media to twitter and return the media ID once processing is successful
         """
         total_bytes = os.path.getsize(file_name)
-        print "INIT"
-
 
         request_data = {
           'command': 'INIT',
@@ -148,10 +144,7 @@ class TwitterConnection(object):
         }
         #first init
         init_req = requests.post(url='https://upload.twitter.com/1.1/media/upload.json', data=request_data, auth=self.oauth)
-        print init_req
-        print init_req.json()
         media_id = init_req.json()['media_id']
-
 
         #then we chunk upload
         segment_id = 0
@@ -160,7 +153,6 @@ class TwitterConnection(object):
 
         while bytes_sent < total_bytes:
             chunk = file.read(1000000)
-            print 'APPEND'
 
             request_data = {
             'command': 'APPEND',
@@ -174,19 +166,12 @@ class TwitterConnection(object):
 
             append_req = requests.post(url='https://upload.twitter.com/1.1/media/upload.json', data=request_data, files=files, auth=self.oauth)
 
-            print append_req
-            print(append_req.status_code)
-            print(append_req.text)
-
             segment_id += 1
             bytes_sent = file.tell()
 
-            print '%s of %s bytes uploaded' % (str(bytes_sent), str(total_bytes))
+            print('%s of %s bytes uploaded' % (str(bytes_sent), str(total_bytes)), file=sys.stderr)
 
-        print 'Upload chunks complete.'
-
-
-        print "FINAL"
+        print('Upload chunks complete.', file=sys.stderr)
 
         request_data = {
           'command': 'FINALIZE',
@@ -194,8 +179,6 @@ class TwitterConnection(object):
         }
 
         final_req = requests.post(url='https://upload.twitter.com/1.1/media/upload.json', data=request_data, auth=self.oauth)
-
-        print final_req.json()
 
         processing_info = final_req.json().get('processing_info', None)
 
@@ -208,27 +191,24 @@ class TwitterConnection(object):
         Checks video processing status
         '''
         if processing_info is None:
-          print " no info"
           return
 
         state = processing_info['state']
 
-        print('Media processing status is %s ' % state)
+        print('Media processing status is %s ' % state, file=sys.stderr)
 
         if state == u'succeeded':
-          print "succeeded", media_id
+          print("succeeded", file=sys.stderr)
           return media_id
 
         if state == u'failed':
-          print "failed"
+          print("failed", file=sys.stderr)
           sys.exit(0)
 
         check_after_secs = processing_info['check_after_secs']
 
-        print('Checking after %s seconds' % str(check_after_secs))
+        print('Checking after %s seconds' % str(check_after_secs), file=sys.stderr)
         time.sleep(check_after_secs)
-
-        print('STATUS')
 
         request_params = {
           'command': 'STATUS',
@@ -254,8 +234,6 @@ class TwitterConnection(object):
             }
         }
         req = requests.post(url='https://api.twitter.com/1.1/direct_messages/events/new.json', headers={"content-type" : "application/json"}, data=json.dumps(request_params), auth=self.oauth)
-        print req
-        print req.json()
 
 class Messenger(object):
 
@@ -282,13 +260,10 @@ class Messenger(object):
         new_convo_messages = []
         old_convo_messages = []
         for message in new_messages:
-            print "checking message"
             #ignore the messages I've sent
             if self.check_sent_by_me(message) == False:
-                print "sent by someone else!"
                 #sent by someone else - A reply
                 if self.check_in_convo(message) == False:
-                    print "new convo!"
                     #start new
                     new_convo_messages.append(message)
                 else:
@@ -296,7 +271,6 @@ class Messenger(object):
                     old_convo_messages.append(message)
 
         for message in new_convo_messages:
-            print "start the convo"
             self.start_conversation(message)
 
         for message in old_convo_messages:
@@ -327,7 +301,6 @@ class Messenger(object):
         """
         Check If I've already started a conversation with this ID
         """
-        print "checking convo", self.conversations
         for convo in self.conversations:
             if message['message_create']['sender_id'] == convo['sender_id']:
                 return True
@@ -337,7 +310,6 @@ class Messenger(object):
         """
         Start the conversation
         """
-        print "start /cont conversation func"
         convo = {"sender_id" : message['message_create']['sender_id'], "position" : 0}
         self.conversations.append(convo)
         self.continue_conversation(message, convo)
@@ -347,17 +319,14 @@ class Messenger(object):
         Return the conversation dictionary for this sender ID
         """
         result = [convo for convo in self.conversations if convo["sender_id"] == message['message_create']['sender_id']]
-        print "get convo result",result
         return result[0]
 
     def continue_conversation(self, message, convo):
         """
         Continue conversations
         """
-        print "continue conversation func"
         #start of conversations
         if convo['position'] == 0:
-            print " MOVIE REC?"
             #Would you like a movie recommendation?
             reply = {"text" : "Would you like a movie recommendation?", "quick_reply" : {"type" : "options", "options" : [{"label" : "Yes"}, {"label" : "No"}]}}
             self.twitter.response(reply, message['message_create']['sender_id'])
@@ -379,6 +348,7 @@ class Messenger(object):
         elif convo['position'] == 2:
             #Heres a movie
             if message['message_create']['message_data']['text'] == "Comedy":
+                print("chosen comedy", file=sys.stderr)
                 media_id = self.twitter.upload_media('assets/BossBaby_vid.mp4', 'video/mp4', 'dm_video')
                 reply = {"text" : "Boss Baby is a fun comedy! http://www.imdb.com/title/tt3874544/. Thanks!", "attachment" : {"type" : "media", "media" : { "id" : media_id}}}
                 self.twitter.response(reply, message['message_create']['sender_id'])
@@ -400,6 +370,7 @@ class Messenger(object):
 #s.run()
 
 #twitter = TwitterConnection(consumer_key, consumer_secret, access_token, access_token_secret)
+#twitter.upload_media('assets/BossBaby_vid.mp4', 'video/mp4', 'dm_video')
 #twitter.delete_webhook()
 #twitter.set_up_webhook()
 #twitter.subscribe_to_webhook()
